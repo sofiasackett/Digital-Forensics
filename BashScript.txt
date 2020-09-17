@@ -1,0 +1,98 @@
+#!/bin/bash
+
+#Sofia Sackett
+#CFRS 660 Spring 2020
+#Project 3
+
+#Instructions
+echo "This script collects volatile and select non-volatile data."
+
+#Ask user where they want data to be saved
+read -p "Enter the complete path where you would like data to be saved: " working_dir
+
+#Create folder for output
+mkdir $working_dir/CaseData
+
+#Get user input and set it equal to a variable
+read -p "What is the investigator's name? " name
+read -p "What is the case name? " case_name
+read -p "What is the watch date and time? " watch_time
+read -p "What type of storage device are you using? " device
+read -p "What is the serial number of the device? " serial
+
+#Get start computer date and time
+computer_date=`date`
+
+#Push the collected data to a file with echo
+echo "****CASE DATA****" > $working_dir/CaseData/case_data.txt
+echo "Investigator's name: " "$name" >> $working_dir/CaseData/case_data.txt
+echo "Case name: " $case_name >> $working_dir/CaseData/case_data.txt
+echo "Storage device: " $device >> $working_dir/CaseData/case_data.txt
+echo "Storage device serial number: " $serial >> $working_dir/CaseData/case_data.txt
+echo "Start watch date and time: " $watch_time >> $working_dir/CaseData/case_data.txt
+echo "Start computer date and time: " $computer_date >> $working_dir/CaseData/case_data.txt
+
+#Collect the arp cache
+arp -a >> $working_dir/CaseData/arp.txt
+
+#Collect system information
+uname -a >> $working_dir/CaseData/sysinfo.txt
+
+#Collect users and recent logins
+w >> $working_dir/CaseData/users.txt
+last >> $working_dir/CaseData/logins.txt
+lastb >> $working_dir/CaseData/badlogins.txt
+
+#Collect directory listings and redirect errors
+ls / -alhR >> $working_dir/CaseData/directory_access.txt 2>$working_dir/CaseData/directory_access-error.txt
+
+#Collect system variables
+set >> $working_dir/CaseData/sysinfo.txt
+
+#Collect any NICs that are in promiscuous mode
+netstat -i >> $working_dir/CaseData/promiscuous.txt
+
+#Collect modification and access times of all files
+ls -alRu >> $working_dir/CaseData/accesstime.txt
+ls -alRc >> $working_dir/CaseData/inodemod.txt
+ls -alR >> $working_dir/CaseData/modtime.txt
+
+#Collect all open ports and associated apps
+netstat -anp >> $working_dir/CaseData/openports.txt
+lsof -n >> $working_dir/CaseData/apps.txt
+
+#Collect all running processes
+ps -ef >> $working_dir/CaseData/proc.txt
+
+#Collect system routing tables
+netstat -rn >> $working_dir/CaseData/route.txt
+
+#Collect IP information
+ifconfig -a >> $working_dir/CaseData/ifconfig.txt
+
+#Collect mounted file systems
+mount >> $working_dir/CaseData/mount.txt
+
+#Collect the Kernel Loaded Modules
+lsmod >> $working_dir/CaseData/klm.txt
+
+#Collect system logs
+cd /var/log
+ls -l >> $working_dir/CaseData/syslogs.txt
+
+#Copy /etc/passwd file
+cd /
+cp /etc/passwd $working_dir/CaseData/passwd.txt
+
+#Collect final time and push to case_data.txt
+read -p "What is the final watch date and time? " watch_time_end
+computer_date_end=`date`
+
+echo "End watch date and time: " $watch_time_end >> $working_dir/CaseData/case_data.txt
+echo "End computer time: " $computer_date_end >> $working_dir/CaseData/case_data.txt
+
+#Save all command history to a text file
+history >> $working_dir/CaseData/history.txt
+
+#Save all MD5 hashes for each file in CaseData
+md5sum * > $working_dir/CaseData/checksum.txt 2>$working_dir/CaseData/md5-error.txt
